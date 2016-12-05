@@ -1,6 +1,6 @@
-const input = 'R1, R3, L2, L5, L2, L1, R3, L4, R2, L2, L4, R2, L1, R1, L2, R3, L1, L4, R2, L5, R3, R4, L1, R2, L1, R3, L4, R5, L4, L5, R5, L3, R2, L3, L3, R1, R3, L4, R2, R5, L4, R1, L1, L1, R5, L2, R1, L2, R188, L5, L3, R5, R1, L2, L4, R3, R5, L3, R3, R45, L4, R4, R72, R2, R3, L1, R1, L1, L1, R192, L1, L1, L1, L4, R1, L2, L5, L3, R5, L3, R3, L4, L3, R1, R4, L2, R2, R3, L5, R3, L1, R1, R4, L2, L3, R1, R3, L4, L3, L4, L2, L2, R1, R3, L5, L1, R4, R2, L4, L1, R3, R3, R1, L5, L2, R4, R4, R2, R1, R5, R5, L4, L1, R5, R3, R4, R5, R3, L1, L2, L4, R1, R4, R5, L2, L3, R4, L4, R2, L2, L4, L2, R5, R1, R4, R3, R5, L4, L4, L5, L5, R3, R4, L1, L3, R2, L2, R1, L3, L5, R5, R5, R3, L4, L2, R4, R5, R1, R4, L3'.split(', ')
+const fs = require('fs')
 
-const testInput = 'R5, L5, R5, R3'.split(', ')
+const input = fs.readFileSync('input.txt', 'utf8').split(', ')
 
 // E -> x + 1
 // W -> x - 1
@@ -13,42 +13,74 @@ let initPos = {
   facing: 'N'
 }
 
+let seen = {
+  '00': 1
+}
+
+let repeats = []
+
+const east = ({x, y}) => ({x: x + 1, y})
+const west = ({x, y}) => ({x: x - 1, y})
+const north = ({x, y}) => ({x, y: y + 1})
+const south = ({x, y}) => ({x, y: y - 1})
+
 const move = ({x, y, facing}, movement) => {
   const direction = movement[0]
   const steps = parseInt(movement.slice(1))
   if (facing === 'N') {
     if (direction === 'R') {
-      return { x: x + steps, y, facing: 'E' }
+      return Object.assign({}, doSteps(x, y, steps, east), {facing: 'E'})
     } else {
-      return { x: x - steps, y, facing: 'W' }
+      return Object.assign({}, doSteps(x, y, steps, west), {facing: 'W'})
     }    
   } else if (facing === 'S') {
     if (direction === 'R') {
-      return { x: x - steps, y, facing: 'W' }
+      return Object.assign({}, doSteps(x, y, steps, west), {facing: 'W'})
     } else {
-      return { x: x + steps, y, facing: 'E' }
+      return Object.assign({}, doSteps(x, y, steps, east), {facing: 'E'})
     }
   } else if (facing === 'E') {
     if (direction === 'R') {
-      return { x, y: y - steps, facing: 'S' }
+      return Object.assign({}, doSteps(x, y, steps, south), {facing: 'S'})
     } else {
-      return { x, y: y + steps, facing: 'N' }
+      return Object.assign({}, doSteps(x, y, steps, north), {facing: 'N'})
     }
   } else if (facing === 'W') {
     if (direction === 'R') {
-      return { x, y: y + steps, facing: 'N' }
+      return Object.assign({}, doSteps(x, y, steps, north), {facing: 'N'})
     } else {
-      return { x, y: y - steps, facing: 'S' }
+      return Object.assign({}, doSteps(x, y, steps, south), {facing: 'S'})
     }
   }
 }
 
-const run = (input, positions) => {
-  for (var i of input) {
-    positions = move(positions, i)
+const doSteps = (x, y, steps, stepFunc) => {
+  let position = {x, y}
+  while (steps > 0) {
+    steps -= 1
+    position = stepFunc(position)
+    trackPositions(position)
   }
-  console.log(`Blocks away: ${Math.abs(positions.x) + Math.abs(positions.y)}`)
-  return positions
+  return position
 }
 
-console.log(run(input, initPos))
+const trackPositions = ({x, y}) => {
+  let key = `${x}${y}`
+  if (seen[key]) {
+    repeats.push([x, y])
+    seen[key] += 1
+  } else {
+    seen[key] = 1
+  }
+}
+
+const run = (input, position) => {
+  input.forEach((movement, index) => {
+    position = move(position, movement)
+  })
+  console.log(`Blocks away: ${Math.abs(position.x) + Math.abs(position.y)}`)
+  console.log(`First repeat: ${repeats[0]}, ${Math.abs(repeats[0][0]) + Math.abs(repeats[0][1])} blocks away`)
+  return position
+}
+
+run(input, initPos)
