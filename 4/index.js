@@ -73,3 +73,28 @@ let total = parseInput(input)
   .reduce((acc, cur) => acc + cur)
 
 console.log(`the sum of the sector IDs of the real rooms is ${total}`)
+
+// =========
+// Part 2
+// =========
+
+const shiftChar = (char, shift) => {
+  return String.fromCharCode(((char.charCodeAt(0) - 97 + shift) % 26) + 97)
+}
+
+const encryptedToWords = (line) => line.split(/-\d.*$/)[0].replace(/-/g, ' ')
+
+const caesar = (chars, shift) => {
+  return Array.from(chars).map(c => {
+    if (c === ' ') return ' '
+    return shiftChar(c, shift)
+  }).join('')
+}
+
+let results = input.map(line => {
+  let sectorId = getSectorId(line)
+  let decrypted = caesar(encryptedToWords(line), sectorId)
+  return [decrypted, sectorId]
+}).filter(result => result[0].includes('northpole object storage'))
+
+console.log(results)
