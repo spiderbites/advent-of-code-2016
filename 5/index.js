@@ -29,7 +29,7 @@ const run = (input) => {
 }
 
 const runPt2 = (input) => {
-  let password = ['_', '_', '_', '_', '_', '_', '_', '_']
+  let password = Array(PW_LEN).fill('_')
   let counter = 0
   while (password.includes('_')) {
     let result = findNextChar(input, counter)
