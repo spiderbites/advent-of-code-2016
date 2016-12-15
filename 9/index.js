@@ -1,5 +1,4 @@
 var fs = require('fs')
-var _ = require('lodash')
 
 let input = fs.readFileSync('./input.txt', 'utf8')
 // input = '(3x3)XYZ'
@@ -17,8 +16,7 @@ while (i < input.length) {
       output = output + input.slice(end + 1, end + 1 + num)
     }
     i = end + 1 + num
-  }
-  else {
+  } else {
     output = output + input[i]
     i++
   }

@@ -1,5 +1,4 @@
 var fs = require('fs')
-var _ = require('lodash')
 
 const input = fs.readFileSync('input.txt', 'utf8').split('\n').map(line => line.trim())
 
